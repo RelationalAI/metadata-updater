@@ -1,0 +1,4 @@
+name = "MetadataUpdater"
+uuid = "9081e672-71b5-405d-869a-c41fa88e7241"
+authors = ["Alexandre Bergel <alexandre.bergel@relational.ai>"]
+version = "0.1.0"

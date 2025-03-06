@@ -1,7 +1,6 @@
 name = "MetadataUpdater"
-uuid = "c03119a8-ed44-4d5e-ac45-c4bb84d15c3b"
+uuid = "9081e672-71b5-405d-869a-c41fa88e7241"
 authors = ["Alexandre Bergel <alexandre.bergel@relational.ai>"]
-manifest = "../../Manifest.toml"
 version = "0.1.0"
 
 [deps]
@@ -9,15 +8,11 @@ CSTParser = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
-Aqua = "0.8"
-JET = "= 0.9.17"
 ReTestItems = "1"
 
 [extras]
-Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "JET", "ReTestItems", "Test"]
+test = ["ReTestItems", "Test"]

@@ -3,7 +3,7 @@ module MetadataUpdater
 using CSTParser: CSTParser, EXPR
 using TOML
 
-export update_metadata, check_with_content, check, args_count
+export fetch_metadatainfo, check_with_content, check, args_count
 
 struct DerivedFunctionSignature
     name::String
@@ -24,7 +24,6 @@ end
 
 headof(x::EXPR) = x.head
 valof(x::EXPR) = x.val
-# kindof(t::Tokens.AbstractToken) = t.kind
 parentof(x::EXPR) = x.parent
 errorof(x::EXPR) = errorof(x.meta)
 errorof(x) = x
@@ -33,7 +32,6 @@ hasmeta(x::EXPR) = x.meta isa LintMeta
 
 function fetch_value(x::EXPR, tag::Symbol, should_fetch_value::Bool=true)
     if headof(x) == tag
-        # @info x
         if should_fetch_value
             return x.val
         else # return the AST
@@ -132,7 +130,7 @@ function shallow_walk(x::EXPR, env::Env)
 end
 
 
-function update_metadata_string(code::String, env::Env=Env())
+function fetch_metadatainfo_sourcecode(code::String, env::Env=Env())
     ast = CSTParser.parse(code, true)
     @assert headof(ast) == :file
 
@@ -145,12 +143,25 @@ function update_metadata_string(code::String, env::Env=Env())
     return env
 end
 
-function update_metadata(raicode_home::String="."; env::Env=Env(raicode_home), print_summary::Bool=true)
+function should_file_name_be_skipped(file::String)
+    return
+        contains(root, "test") ||
+        contains(root, ".git") ||
+        contains(root, "Salsa/examples") ||
+        contains(root, "Salsa/bench")
+end
+
+function fetch_metadatainfo_filenames(filenames::Vector{String}, env::Env=Env())
+    for filename in filenames
+        content = open(io->read(io, String), filename)
+        fetch_metadatainfo_sourcecode(content, env)
+    end
+    return env
+end
+
+function fetch_metadatainfo(raicode_home::String="."; env::Env=Env(raicode_home))
     for (root, dirs, files) in walkdir(raicode_home)
-        contains(root, "test") && continue
-        contains(root, ".git") && continue
-        contains(root, "Salsa/examples") && continue
-        contains(root, "Salsa/bench") && continue
+        should_file_name_be_skipped(root) && continue
 
         for file in files
             endswith(file, ".jl") || continue
@@ -158,17 +169,20 @@ function update_metadata(raicode_home::String="."; env::Env=Env(raicode_home), p
             env.files_count += 1
             # println(root_file) # path to files
             content = open(io->read(io, String), root_file)
-            update_metadata_string(content, env)
+            fetch_metadatainfo_sourcecode(content, env)
         end
     end
 
-    if print_summary
-        @info "Number of matched files = $(env.files_count)"
-        @info "Total loc = $(env.loc)"
-        @info "Total derived function = $(length(env.derived_functions))"
-    end
-
     return env
+end
+
+function print_summary(env::Env)
+    @info """
+        Summary of the metadata extraction and comparison:
+            Analyzed loc = $(env.loc)
+            Number of analyzed files = $(env.files_count)
+            Number of derived functions = $(length(env.derived_functions))
+        """
 end
 
 ##################################################
@@ -201,8 +215,8 @@ function check(found_env::Env, raw_toml_dict::Dict{String, Any}, io::IO=stdout)
     l2 = length(toml_dict)
 
     if l1 != l2
-        println(io, "In the source code, I found $(l1) derived functions, in TOML file I found $(l2) derived functions")
-        println(io, "Number of derived function differs: $(l1) vs $(l2)")
+        println(io, "In the source code, $(l1) derived functions were found, while in TOML file $(l2) derived functions were found")
+        println(io, "Number of derived function differs between TOML file and the : $(l1) vs $(l2)")
     end
 
     # LOOK FOR NAMES FOUND IN THE EXTRACTED CODE AND NOT IN THE TOML FILE
@@ -216,10 +230,10 @@ function check(found_env::Env, raw_toml_dict::Dict{String, Any}, io::IO=stdout)
                 found = true
                 break
             elseif df.name == toml_bind.second["keyspace_name"] && df.version != toml_bind.second["version"]
-                println(io, "Function named $(df.name) found in source code, but the version differ: $(df.version) vs $(toml_bind.second["version"])")
+                println(io, "Function named `$(df.name)` found in source code with a different version from that persisted to the file TOML file: $(df.version) vs $(toml_bind.second["version"])")
                 return false
             elseif df.name == toml_bind.second["keyspace_name"] && df.args_count != args_count(toml_bind.second["args_type"])
-                println(io, "Function named $(df.name) found in source code, but the number of arguments differ: $(df.args_count) vs $(args_count(toml_bind.second["args_type"]))")
+                println(io, "Function named `$(df.name)` found in source code with a different number of arguments than those persisted to the file MetadataRegistry.toml: $(df.args_count) vs $(args_count(toml_bind.second["args_type"]))")
                 return false
             end
         end
@@ -249,7 +263,7 @@ function check(found_env::Env, raw_toml_dict::Dict{String, Any}, io::IO=stdout)
     return true
 end
 
-# Count the number of arguments in the tupple type provided as a string
+# Count the number of arguments in the tuple type provided as a string
 function args_count(entry::String)
     local nb_of_args = 1
     local index = 1
@@ -286,7 +300,7 @@ end
 # function write_to_file(filename::String="/tmp/df.txt")
 #     isfile(filename) && rm(filename)
 
-#     env = update_metadata()
+#     env = fetch_metadatainfo()
 #     open(filename, "w") do io
 #         foreach(x -> println(io, string(x)), env.derived_functions)
 #     end

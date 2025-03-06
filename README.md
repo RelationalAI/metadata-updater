@@ -39,9 +39,15 @@ In a Julia REPL, you can do the following:
 
 ```Julia
 using MetadataUpdater
-env = MetadataUpdater.update_metadata()
+env = MetadataUpdater.fetch_metadatainfo()
 check(env)
 ```
 
-The function `update_metadata` gathers all the metadata in our codebase in an `Env` object.
+The function `fetch_metadatainfo` gathers all the metadata in our codebase in an `Env` object.
 The function `check` looks for discrepancies with the `MetadataRegistry.toml` file.
+
+## Limitation
+
+MetadataUpdater cannot checks for the type of arguments and the return type. One reason is
+because types cannot be resolved by just looking at the source code.
+

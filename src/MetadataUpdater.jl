@@ -8,15 +8,15 @@ export fetch_metadatainfo, check_with_content, check, args_count
 struct DerivedFunctionSignature
     name::String
     version::String
-    args_count::Int64
+    args_count::Integer
 end
 
 mutable struct Env
     home_dir::String
 
-    files_count::Int64
+    files_count::Integer
     derived_functions::Vector{DerivedFunctionSignature}
-    loc::Int64
+    loc::Integer
 
     Env(home_dir::String) = new(home_dir, 0, DerivedFunctionSignature[], 0)
     Env() = Env("")

@@ -1,10 +1,10 @@
-@testitem "Initialization" begin
+@testset "Initialization"  begin
     env = MetadataUpdater.Env()
     @test iszero(env.loc)
     @test iszero(env.files_count)
 end
 
-@testitem "Basic" begin
+@testset "Basic" begin
     source = """
     @derived v=3 function valid_idb_dependencies_for_def(
         rt::Runtime, path::RelPath, phase::Phase
@@ -137,7 +137,7 @@ end
     @test length(env.derived_functions) == length(defined_named)
 end
 
-@testitem "Number of arguments" begin
+@testset "Number of arguments" begin
     @test args_count("Tuple{}") == 0
     @test args_count("Tuple{String}") == 1
     @test args_count("Tuple{RAICode.DependencyGraph.SCCId, RAICode.Metadata.Phase}") == 2

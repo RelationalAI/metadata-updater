@@ -1,4 +1,4 @@
-@testitem "In a module" begin
+@testset "In a module" begin
     source = """
     module FooBar
     @derived function foo(rt)

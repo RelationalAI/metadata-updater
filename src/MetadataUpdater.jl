@@ -143,36 +143,25 @@ function fetch_metadatainfo_sourcecode(code::String, env::Env=Env())
     return env
 end
 
-function should_file_name_be_skipped(file::String)
-    return
-        contains(root, "test") ||
-        contains(root, ".git") ||
-        contains(root, "Salsa/examples") ||
-        contains(root, "Salsa/bench")
+function should_file_name_be_skipped(filename::String)
+    return contains(filename, "test/") ||
+        contains(filename, ".git") ||
+        contains(filename, "Salsa/examples") ||
+        contains(filename, "Salsa/bench")
 end
 
 function fetch_metadatainfo_filenames(filenames::Vector{String}, env::Env=Env())
     for filename in filenames
-        content = open(io->read(io, String), filename)
-        fetch_metadatainfo_sourcecode(content, env)
+        fetch_metadatainfo_filename(filename, env)
     end
     return env
 end
 
-function fetch_metadatainfo(raicode_home::String="."; env::Env=Env(raicode_home))
-    for (root, dirs, files) in walkdir(raicode_home)
-        should_file_name_be_skipped(root) && continue
-
-        for file in files
-            endswith(file, ".jl") || continue
-            root_file = joinpath(root, file)
-            env.files_count += 1
-            # println(root_file) # path to files
-            content = open(io->read(io, String), root_file)
-            fetch_metadatainfo_sourcecode(content, env)
-        end
-    end
-
+function fetch_metadatainfo_filename(filename::String, env::Env=Env())
+    endswith(filename, ".jl") || return
+    env.files_count += 1
+    content = open(io->read(io, String), filename)
+    fetch_metadatainfo_sourcecode(content, env)
     return env
 end
 
@@ -294,17 +283,5 @@ function args_count(entry::String)
 
     return nb_of_args
 end
-
-##################################################
-# For debugging purposes
-# function write_to_file(filename::String="/tmp/df.txt")
-#     isfile(filename) && rm(filename)
-
-#     env = fetch_metadatainfo()
-#     open(filename, "w") do io
-#         foreach(x -> println(io, string(x)), env.derived_functions)
-#     end
-#     @info "Extracted derived function signature written to $(filename)"
-# end
 
 end

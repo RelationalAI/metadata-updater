@@ -1,5 +1,5 @@
 using Test
-using ReTestItems
 using MetadataUpdater
 
-runtests(MetadataUpdater)
+include("basic_tests.jl")
+include("check_tests.jl")

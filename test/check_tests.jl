@@ -1,4 +1,4 @@
-@testitem "In a module" tags=[:ring1, :unit] begin
+@testset "In a module" begin
     source = """
     module FooBar
     @derived function foo(rt)

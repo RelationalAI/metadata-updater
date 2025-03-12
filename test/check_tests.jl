@@ -14,7 +14,7 @@
     end
     end
     """
-    env = MetadataUpdater.update_metadata_string(source)
+    env = MetadataUpdater.fetch_metadatainfo_sourcecode(source)
 
     @testset "Sanity check" begin
         defined_named = ["foo", "bar", "zork"]
@@ -84,7 +84,7 @@
         # No error
         io = IOBuffer()
         @test !check_with_content(env, toml_content, io)
-        @test endswith(String(take!(io)), "Function named foo found in source code, but the number of arguments differ: 0 vs 1\n")
+        @test endswith(String(take!(io)), "Function named `foo` found in source code with a different number of arguments than those persisted to the file MetadataRegistry.toml: 0 vs 1\n")
     end
 
     @testset "Args count mismatch 2" begin
@@ -111,7 +111,7 @@
         # No error
         io = IOBuffer()
         @test !check_with_content(env, toml_content, io)
-        @test endswith(String(take!(io)), "Function named foo found in source code, but the number of arguments differ: 0 vs 1\n")
+        @test endswith(String(take!(io)), "Function named `foo` found in source code with a different number of arguments than those persisted to the file MetadataRegistry.toml: 0 vs 1\n")
     end
 
     @testset "Function found in source code, but not in toml" begin
@@ -192,7 +192,7 @@
         # Incorrect version number
         io = IOBuffer()
         @test !check_with_content(env, toml_content, io)
-        @test endswith(String(take!(io)), "Function named zork found in source code, but the version differ: 10 vs 20\n")
+        @test endswith(String(take!(io)), "Function named `zork` found in source code with a different version from that persisted to the file TOML file: 10 vs 20\n")
     end
 
 end

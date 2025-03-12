@@ -96,7 +96,7 @@ end
 
     ##################################################
     # Top level
-    env = MetadataUpdater.update_metadata_string(source)
+    env = MetadataUpdater.fetch_metadatainfo_sourcecode(source)
     @test iszero(env.files_count)
     @test env.loc == length(split(source, "\n"))
 
@@ -127,7 +127,7 @@ end
     ##################################################
     # Within a module
     source = "module FooBar\n" * source * "\nend\n"
-    env = MetadataUpdater.update_metadata_string(source)
+    env = MetadataUpdater.fetch_metadatainfo_sourcecode(source)
     @test iszero(env.files_count)
     @test env.loc == length(split(source, "\n"))
 
@@ -136,15 +136,6 @@ end
     end
     @test length(env.derived_functions) == length(defined_named)
 end
-
-# @testset "Basic2" begin
-#     # file_to_analyze = joinpath(pwd(), "packages", "MetadataUpdater", "src", "MetadataUpdater.jl")
-#     file_to_analyze = "basic_tests.jl"
-#     isfile(file_to_analyze) || return
-#     env = MetadataUpdater.update_metadata(file_to_analyze; print_summary=false)
-#     @test env.files_count == 1
-#     @test isempty(env.derived_functions)
-# end
 
 @testset "Number of arguments" begin
     @test args_count("Tuple{}") == 0

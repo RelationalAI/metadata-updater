@@ -1,0 +1,6 @@
+- id: check-metadata-of-derived-functions
+  name: check-metadata-of-derived-functions
+  description: Check if metadata of derived functions needs to be updated
+  language: script
+  entry: ./scripts/check-metadata-of-derived-functions.sh
+  types: [file]

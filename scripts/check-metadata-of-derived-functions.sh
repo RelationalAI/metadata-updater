@@ -2,7 +2,7 @@
 
 FILES_TO_CHECK=$@
 
-echo "Checking metadata of derived functions in the following files: $FILES_TO_CHECK"
+# echo "Checking metadata of derived functions in the following files: $FILES_TO_CHECK"
 
 julia --project=. -e "
     using Pkg
@@ -11,7 +11,9 @@ julia --project=. -e "
     # Convert the filenames into an array of strings
     filenames = split(\"$FILES_TO_CHECK\", \" \")
 
-    using MetadataUpdater
+    using MetadataUpdater: fetch_metadatainfo_filenames, MetadataUpdater
+    @info \"DEBUG 13-03-2025\"
+    @info MetadataUpdater.fetch_metadatainfo_filenames
     env = MetadataUpdater.fetch_metadatainfo_filenames(filenames)
     MetadataUpdater.print_summary(env)
     # WE NEED TO EXTRACT THE ROOT FOR THE METADATA REGISTRY TOML FILE!!!!!!!!

@@ -11,9 +11,7 @@ julia --project=. -e "
     # Convert the filenames into an array of strings
     filenames = split(\"$FILES_TO_CHECK\", \" \")
 
-    using MetadataUpdater: fetch_metadatainfo_filenames, MetadataUpdater
-    @info \"DEBUG 13-03-2025\"
-    @info MetadataUpdater.fetch_metadatainfo_filenames
+    using MetadataUpdater
     env = MetadataUpdater.fetch_metadatainfo_filenames(filenames)
     MetadataUpdater.print_summary(env)
     # WE NEED TO EXTRACT THE ROOT FOR THE METADATA REGISTRY TOML FILE!!!!!!!!

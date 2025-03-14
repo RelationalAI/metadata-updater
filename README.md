@@ -48,6 +48,8 @@ The function `check` looks for discrepancies with the `MetadataRegistry.toml` fi
 
 ## Limitation
 
-MetadataUpdater cannot checks for the type of arguments and the return type. One reason is
-because types cannot be resolved by just looking at the source code.
-
+We are aware of the following limitations:
+- MetadataUpdater cannot check for the type of arguments and the return type. One reason is
+that types cannot be resolved by looking at the source code.
+- The presence of a function defined in the `MetadataRegistry.toml` that does not exist in the
+source code is not a reason to fail the pre-commit check. 

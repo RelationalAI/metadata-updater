@@ -135,38 +135,38 @@
         @test endswith(String(take!(io)), "Function named zork found in source code, but not in TOML file\n")
     end
 
-    @testset "Function not found in source code" begin
-        toml_content = """
-        [foo]
-        args_type = "Tuple{}"
-        keyspace_name = "foo"
-        return_type = "RAICode.FrontCompiler.PhaseResult"
-        version = "nothing"
+    # @testset "Function not found in source code" begin
+    #     toml_content = """
+    #     [foo]
+    #     args_type = "Tuple{}"
+    #     keyspace_name = "foo"
+    #     return_type = "RAICode.FrontCompiler.PhaseResult"
+    #     version = "nothing"
 
-        [bar]
-        args_type = "Tuple{String}"
-        keyspace_name = "bar"
-        return_type = "RAICode.FrontCompiler.PhaseResult"
-        version = "2"
+    #     [bar]
+    #     args_type = "Tuple{String}"
+    #     keyspace_name = "bar"
+    #     return_type = "RAICode.FrontCompiler.PhaseResult"
+    #     version = "2"
 
-        [zork]
-        args_type = "Tuple{String, String, String}"
-        keyspace_name = "zork"
-        return_type = "RAICode.FrontCompiler.PhaseResult"
-        version = "10"
+    #     [zork]
+    #     args_type = "Tuple{String, String, String}"
+    #     keyspace_name = "zork"
+    #     return_type = "RAICode.FrontCompiler.PhaseResult"
+    #     version = "10"
 
-        [zork_not_found]
-        args_type = "Tuple{String, String}"
-        keyspace_name = "zork_not_found"
-        return_type = "RAICode.FrontCompiler.PhaseResult"
-        version = "12"
-        """
+    #     [zork_not_found]
+    #     args_type = "Tuple{String, String}"
+    #     keyspace_name = "zork_not_found"
+    #     return_type = "RAICode.FrontCompiler.PhaseResult"
+    #     version = "12"
+    #     """
 
-        # No error
-        io = IOBuffer()
-        @test !check_with_content(env, toml_content, io)
-        @test endswith(String(take!(io)), "Function named zork_not_found found in TOML file, but not in source code\n")
-    end
+    #     # No error
+    #     io = IOBuffer()
+    #     @test !check_with_content(env, toml_content, io)
+    #     @test endswith(String(take!(io)), "Function named zork_not_found found in TOML file, but not in source code\n")
+    # end
 
     @testset "Incorrect version number" begin
         toml_content = """

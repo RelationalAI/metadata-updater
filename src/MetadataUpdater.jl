@@ -3,7 +3,7 @@ module MetadataUpdater
 using CSTParser: CSTParser, EXPR
 using TOML
 
-export fetch_metadatainfo, check_with_content, check, args_count
+export fetch_metadatainfo, check_with_content, check, args_count, fetch_metadatainfo_filenames
 
 struct DerivedFunctionSignature
     name::String
@@ -144,7 +144,8 @@ function fetch_metadatainfo_sourcecode(code::String, env::Env=Env())
 end
 
 function should_file_name_be_skipped(filename::String)
-    return contains(filename, "test/") ||
+    return !endswith(filename, ".jl") ||
+        contains(filename, "test/") ||
         contains(filename, ".git") ||
         contains(filename, "Salsa/examples") ||
         contains(filename, "Salsa/bench")
@@ -158,7 +159,7 @@ function fetch_metadatainfo_filenames(filenames::Vector{String}, env::Env=Env())
 end
 
 function fetch_metadatainfo_filename(filename::String, env::Env=Env())
-    endswith(filename, ".jl") || return
+    should_file_name_be_skipped(filename) && return
     env.files_count += 1
     content = open(io->read(io, String), filename)
     fetch_metadatainfo_sourcecode(content, env)
@@ -233,21 +234,22 @@ function check(found_env::Env, raw_toml_dict::Dict{String, Any}, io::IO=stdout)
     end
 
     # LOOK FOR NAMES FOUND IN THE TOML FILE AND NOT IN THE EXTRACTED CODE
-    for toml_bind in collect(toml_dict)
-        found = false
-        for df in found_derived_functions
-            if df.name == toml_bind.second["keyspace_name"] &&
-                df.args_count == args_count(toml_bind.second["args_type"])
+    # NO NEED TO DO SO, SINCE PRE-COMMIT HAVE MULTIPLE JOBS
+    # for toml_bind in collect(toml_dict)
+    #     found = false
+    #     for df in found_derived_functions
+    #         if df.name == toml_bind.second["keyspace_name"] &&
+    #             df.args_count == args_count(toml_bind.second["args_type"])
 
-                found = true
-                break
-            end
-        end
-        if !found
-            println(io, "Function named $(toml_bind.second["keyspace_name"]) found in TOML file, but not in source code")
-            return false
-        end
-    end
+    #             found = true
+    #             break
+    #         end
+    #     end
+    #     if !found
+    #         println(io, "Function named $(toml_bind.second["keyspace_name"]) found in TOML file, but not in source code")
+    #         return false
+    #     end
+    # end
 
     return true
 end

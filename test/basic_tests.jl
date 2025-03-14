@@ -290,4 +290,6 @@ end
     @test MetadataUpdater.should_file_name_be_skipped(".git/foo.jl")
     @test !MetadataUpdater.should_file_name_be_skipped("src/foo.jl")
     @test !MetadataUpdater.should_file_name_be_skipped("packages/Foo/src/foo.jl")
+    @test MetadataUpdater.should_file_name_be_skipped("packages/Foo/src/foo.txt")
+    @test MetadataUpdater.should_file_name_be_skipped("test/Results/snapshot-testing/expected/string/2.arrow")
 end

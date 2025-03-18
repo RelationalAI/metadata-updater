@@ -3,17 +3,17 @@
 ## Description
 
 MetadataUpdater is a tool to extract metadata from the source code and check if it is
-consistent with the TOML file. MetadataUpdater is meant to be used either standalone
-through the helper script ./scripts/check_metadata-of-derived-functions.sh or as a part
-of the CI pipeline (which ultimately call this script).
+consistent with the TOML file. MetadataUpdater is meant to be used as standalone 
+as a [pre-commit](https://pre-commit.com/) hook. Being used by pre-commit means that
+MetadataUpdater is transparently and efficiently run by git and by our CI/CD.
 
-MetadataUpdater works as follow:
+MetadataUpdater works as follows:
 
-1. It extracts the metadata from the source code (i.e., the derived functions) and
-store them in a data structure (DerivedFunctionSignature and Env)
-2. It reads the TOML file and store the metadata in a data structure.
-3. It compares the two data structures and check if they are equivalent. If they are not,
-it will print the differences.
+1. It extracts the metadata from derived functions in our source code and
+store them in a data structure (`DerivedFunctionSignature` and `Env`)
+2. It reads the TOML file and keeps its recorded metadata in a data structure.
+3. It compares the two data structures and checks if they are equivalent. If they are not,
+it will print the differences and signal an error to pre-commit.
 
 ## Example
 
@@ -33,15 +33,23 @@ A PR will be prevented from being committed/merged if:
 - if changes a version of the derived function, e.g., modify the version to 5
 - if it removes a version or adds one, e.g., remove `v=2`
 
-## Programmatically using MetadataUpdater
+## Manually running MetadataUpdater
 
-In a Julia REPL, you can do the following:
+There are three ways to run MetadataUpdater:
 
+1. After installing pre-commit in your git repository (`pip install pre-commit` followed by `pre-commit install`), 
+simply commit a change in raicode. Any inconsistency between source code and the
+`MetadataRegistry.toml` file will prevent the commit from happening.
+2. Execute `pre-commit run check-metadata-of-derived-functions --all-files --verbose` in your terminal, while being
+in the `raicode` folder.
+3. Clone the [RelationalAI/metadata-updater](https://github.com/RelationalAI/metadata-updater) repository and execute
 ```Julia
 using MetadataUpdater
-env = MetadataUpdater.fetch_metadatainfo()
-check(env)
+env = MetadataUpdater.fetch_metadatainfo_filenames(["/Users/alexandrebergel/Documents/RAI/raicode3/src/FrontCompiler/eager-maintainers.jl"])
+MetadataUpdater.print_summary(env)
+check(env, "/Users/alexandrebergel/Documents/RAI/raicode3/MetadataRegistry.toml")
 ```
+<img width="1178" alt="Screenshot 2025-03-18 at 12 51 08" src="https://github.com/user-attachments/assets/388c6acf-1c04-476a-b63a-5951b9e8502c" />
 
 The function `fetch_metadatainfo` gathers all the metadata in our codebase in an `Env` object.
 The function `check` looks for discrepancies with the `MetadataRegistry.toml` file.

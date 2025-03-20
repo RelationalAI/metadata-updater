@@ -6,10 +6,9 @@ FILES_TO_CHECK=$@
 
 METAUPDATER_PATH=$(dirname $0)/..
 RAICODE_PATH=$PWD
+echo "RAICODE_PATH: $RAICODE_PATH"
 
-# echo "RAICODE_PATH: $RAICODE_PATH"
-
-julia --project=$METAUPDATER_PATH -e "
+julia --startup-file=no --history-file=no --project=$METAUPDATER_PATH -e "
     using Pkg
     Pkg.instantiate()
 

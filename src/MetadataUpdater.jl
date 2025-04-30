@@ -9,6 +9,7 @@ struct DerivedFunctionSignature
     name::String
     version::String
     args_count::Integer
+    filename::String
 end
 
 mutable struct Env
@@ -18,7 +19,9 @@ mutable struct Env
     derived_functions::Vector{DerivedFunctionSignature}
     loc::Integer
 
-    Env(home_dir::String) = new(home_dir, 0, DerivedFunctionSignature[], 0)
+    current_file::String
+
+    Env(home_dir::String) = new(home_dir, 0, DerivedFunctionSignature[], 0, "")
     Env() = Env("")
 end
 
@@ -95,7 +98,7 @@ function shallow_walk(x::EXPR, env::Env)
                 function_name = fetch_value(fetch_value(x, :call, false), :quotenode, false).args[1].val
             end
 
-            sig = DerivedFunctionSignature(function_name, version, args_count)
+            sig = DerivedFunctionSignature(function_name, version, args_count, env.current_file)
             push!(env.derived_functions, sig)
         else
             # Function is preceded by `Salsa.@derived`
@@ -122,7 +125,7 @@ function shallow_walk(x::EXPR, env::Env)
                     function_name = fetch_value(fetch_value(x, :call, false), :quotenode, false).args[1].val
                 end
 
-                sig = DerivedFunctionSignature(function_name, version, args_count)
+                sig = DerivedFunctionSignature(function_name, version, args_count, env.current_file)
                 push!(env.derived_functions, sig)
             end
         end
@@ -153,15 +156,23 @@ end
 
 function fetch_metadatainfo_filenames(filenames::Vector{String}, env::Env=Env())
     for filename in filenames
+        env.current_file = filename
         fetch_metadatainfo_filename(filename, env)
     end
     return env
 end
 
 function fetch_metadatainfo_filename(filename::String, env::Env=Env())
-    should_file_name_be_skipped(filename) && return
+    if isdir(filename)
+        for file in readdir(filename)
+            fetch_metadatainfo_filename(joinpath(filename, file), env)
+        end
+        return env
+    end
+    should_file_name_be_skipped(filename) && return env
     env.files_count += 1
     content = open(io->read(io, String), filename)
+    env.current_file = filename
     fetch_metadatainfo_sourcecode(content, env)
     return env
 end

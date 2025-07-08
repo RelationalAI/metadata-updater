@@ -8,13 +8,6 @@ METAUPDATER_PATH=$(dirname $0)/..
 RAICODE_PATH=$PWD
 echo "RAICODE_PATH: $RAICODE_PATH"
 
-# Check if Julia is installed and accessible
-if ! command -v julia >/dev/null 2>&1; then
-    echo "Error: Julia is not installed or not in your PATH." >&2
-    echo "Exiting with 0" >&2
-    exit 0
-fi
-
 julia --startup-file=no --history-file=no --project=$METAUPDATER_PATH -e "
     using Pkg
     Pkg.instantiate()
